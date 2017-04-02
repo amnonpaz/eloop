@@ -25,4 +25,10 @@ struct list_head {
 void list_add(struct list_head *head, struct list_head *item);
 void list_del(struct list_head *item);
 
+#define list_add_last(head, item) \
+    list_add((head), (item))
+
+#define list_add_first(head, item) \
+    list_add((head)->next, (item))
+
 #endif /* __LIST_H__ */
