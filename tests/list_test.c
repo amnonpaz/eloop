@@ -10,23 +10,39 @@ struct int_node {
 #define arr_len(arr) \
     (sizeof(arr)/sizeof((arr)[0]))
 
-
-static int fill_list(struct list_head *list, int data[], int len)
+struct int_node *create_node(int data)
 {
-    int n;
+    struct int_node *node = malloc(sizeof(*node));
+    if (!node)
+        return NULL;
 
-    for (n = 0; n < len; n++) {
-        struct int_node *item = malloc(sizeof(*item));
-        if (!item) {
-            printf("Error allocating new node");
-            break;
-        }
+    node->data = data;
 
-        item->data = data[n];
-        list_add(list, (struct list_head *)item);
+    return node;
+}
+
+struct int_node *add_node_last(struct list_head *list, int data)
+{
+    struct int_node *node = create_node(data);
+    if (!node) {
+        return NULL;
     }
 
-    return n;
+    list_add_last(list, (struct list_head *)node);
+
+    return node;
+}
+
+struct int_node *add_node_first(struct list_head *list, int data)
+{
+    struct int_node *node = create_node(data);
+    if (!node) {
+        return NULL;
+    }
+
+    list_add_first(list, (struct list_head *)node);
+
+    return node;
 }
 
 static void print_list(struct list_head *list)
@@ -38,12 +54,36 @@ static void print_list(struct list_head *list)
         printf("%d -> ", ((struct int_node *)itr)->data);
     }
     printf("#\n");
+}
+
+static void print_list_rev(struct list_head *list)
+{
+    struct list_head *itr;
 
     printf("# ");
     list_for_each_rev(list, itr) {
         printf("%d <- ", ((struct int_node *)itr)->data);
     }
     printf("*\n");
+}
+
+static int fill_list(struct list_head *list, int data[], int len)
+{
+    int n;
+
+    printf("Inserting: ");
+    for (n = 0; n < len; n++) {
+        if (!add_node_last(list, data[n])) {
+            printf("<Allocation error>");
+            break;
+        }
+
+        printf("%d ", data[n]);
+    }
+
+    printf("#\n");
+
+    return n;
 }
 
 static void clean_list(struct list_head *list)
@@ -71,6 +111,14 @@ int main(int argc, char *argv[])
 
     fill_list(&numbers, data, arr_len(data));
     print_list(&numbers);
+
+    add_node_last(&numbers, 14);
+    print_list(&numbers);
+
+    add_node_first(&numbers, 3);
+    print_list(&numbers);
+
+    print_list_rev(&numbers);
     clean_list(&numbers);
 
     return 0;
