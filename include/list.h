@@ -9,6 +9,9 @@ struct list_head {
 #define list_new(list) \
     struct list_head list = { .next = &(list), .prev = &(list) }
 
+#define list_init(list) \
+    { (list)->next = list; (list)->prev = list; }
+
 #define list_is_empty(list) \
     ((list)->next == (list)->prev)
 
