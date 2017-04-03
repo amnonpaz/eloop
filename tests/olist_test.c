@@ -88,6 +88,34 @@ static void clean_list(struct olist_head *list)
     printf("#\n");
 }
 
+static int remove_node(struct olist_head *list, int data, int *rem)
+{
+    struct int_node *item =
+        (struct int_node *)olist_del_by_key(list, (void *)&data);
+    if (!item) {
+        return -1;
+    }
+
+    *rem = item->data;
+    free(item);
+
+    return 0;
+}
+
+static void remove_nodes(struct olist_head *list, int arr[], int len)
+{
+    int n, rem;
+
+    for (n = 0; n < len; n++) {
+        if (remove_node(list, arr[n], &rem)) {
+            printf("Trying to remove %d, not found\n", arr[n]);
+            continue;
+        }
+
+        printf("Trying to remove %d, removed %d\n", arr[n], rem);
+    }
+}
+
 static int int_cmp(void *key1, void *key2)
 {
     int val1 = *(int *)key1,
@@ -104,12 +132,17 @@ static int int_cmp(void *key1, void *key2)
 
 int main(int argc, char *argv[])
 {
-    int data[] = {7, 18, 4, 10, 12, 6, 11, 20};
+    int data[] = { 7, 18, 4, 10, 12, 6, 11, 20 };
+    int removal_list[] = { 4, 13, 20, 10 };
     olist_new(numbers, int_cmp);
 
     fill_list(&numbers, data, arr_len(data));
     print_list(&numbers);
     print_list_rev(&numbers);
+
+    remove_nodes(&numbers, removal_list, arr_len(removal_list));
+    print_list(&numbers);
+
     clean_list(&numbers);
 
     return 0;
