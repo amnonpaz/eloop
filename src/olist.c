@@ -25,16 +25,20 @@ void olist_add(struct olist_head *head,
 
 struct olist_head *olist_find(struct olist_head *head, void *key)
 {
-    struct olist_head *itr = NULL;
+    struct olist_head *item = NULL, *itr;
 
     olist_for_each(head, itr) {
-        if (!head->cmp_cb(itr->key, key))
+        int res = head->cmp_cb(itr->key, key);
+        if (res < 0)
             continue;
+
+        if (!res)
+            item = itr;
 
         break;
     }
 
-    return itr;
+    return item;
 }
 
 struct olist_head *olist_del_by_key(struct olist_head *head, void *key)
