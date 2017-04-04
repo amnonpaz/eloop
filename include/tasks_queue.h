@@ -12,14 +12,11 @@ typedef unsigned int task_id_t;
 
 struct tasks_queue;
 
-struct tasks_queue *tasks_queue_new(const char *name);
+struct tasks_queue *tasks_queue_new();
 
 void tasks_queue_delete(struct tasks_queue *queue, bool execute_all);
 
-task_id_t tasks_queue_add(struct tasks_queue *queue,
-                          const char *name, task_cb_t cb, void *ctx);
-
-char *tasks_queue_task_name(struct tasks_queue *queue, task_id_t id);
+task_id_t tasks_queue_add(struct tasks_queue *queue, task_cb_t cb, void *ctx);
 
 void tasks_queue_remove(struct tasks_queue *queue, task_id_t id);
 

@@ -8,7 +8,6 @@
 
 struct task {
     struct list_head list;
-    char *name;
     task_cb_t cb;
     void *ctx;
     task_id_t id;
@@ -19,11 +18,10 @@ struct task {
 
 struct tasks_queue {
     struct list_head head;
-    char *name;
     unsigned int len;
 };
 
-static struct task *task_new(const char *name, task_cb_t cb, void *ctx)
+static struct task *task_new(task_cb_t cb, void *ctx)
 {
     static task_id_t id = TASK_ID_MIN;
 
@@ -32,7 +30,6 @@ static struct task *task_new(const char *name, task_cb_t cb, void *ctx)
         return NULL;
 
     list_init(&new_task->list);
-    new_task->name = strdup(name);
     new_task->cb = cb;
     new_task->ctx = ctx;
     new_task->id = id;
@@ -46,18 +43,16 @@ static struct task *task_new(const char *name, task_cb_t cb, void *ctx)
 static void task_delete(struct task *rem_task)
 {
     list_del(&rem_task->list);
-    free(rem_task->name);
     free(rem_task);
 }
 
-struct tasks_queue *tasks_queue_new(const char *name)
+struct tasks_queue *tasks_queue_new()
 {
     struct tasks_queue *queue = malloc(sizeof(*queue));
     if (!queue)
         return NULL;
 
     list_init(&queue->head);
-    queue->name = strdup(name);
     queue->len = 0;
 
     return queue;
@@ -76,14 +71,12 @@ void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
         queue->len--;
     }
 
-    free(queue->name);
     free(queue);
 }
 
-task_id_t tasks_queue_add(struct tasks_queue *queue,
-                          const char *name, task_cb_t cb, void *ctx)
+task_id_t tasks_queue_add(struct tasks_queue *queue, task_cb_t cb, void *ctx)
 {
-    struct task *new_task = task_new(name, cb, ctx);
+    struct task *new_task = task_new(cb, ctx);
     if (!new_task)
         return INVALID_TASK_ID;
 
@@ -105,15 +98,6 @@ static struct task *task_find(struct tasks_queue *queue, task_id_t id)
     }
 
     return (struct task *)item;
-}
-
-char *tasks_queue_task_name(struct tasks_queue *queue, task_id_t id)
-{
-    struct task *item = task_find(queue, id);
-    if (!item)
-        return NULL;
-
-    return item->name;
 }
 
 void tasks_queue_remove(struct tasks_queue *queue, task_id_t id)
