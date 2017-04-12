@@ -1,2 +1,3 @@
-# exec_loop
-An execution loop library
+# eloop
+
+My implementation of an event loop
