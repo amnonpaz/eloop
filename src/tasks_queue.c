@@ -10,7 +10,7 @@ struct task {
     struct list_head list;
     task_cb_t cb;
     void *ctx;
-    task_id_t id;
+    unsigned int id;
 };
 
 #define _execute_task(t) \
@@ -21,10 +21,10 @@ struct tasks_queue {
     unsigned int len;
 };
 
-static struct task *task_new(task_cb_t cb, void *ctx)
+static struct task *task_new(task_cb_t cb,
+                             void *ctx,
+                             unsigned int task_id)
 {
-    static task_id_t id = TASK_ID_MIN;
-
     struct task *new_task = malloc(sizeof(*new_task));
     if (!new_task)
         return NULL;
@@ -32,10 +32,7 @@ static struct task *task_new(task_cb_t cb, void *ctx)
     list_init(&new_task->list);
     new_task->cb = cb;
     new_task->ctx = ctx;
-    new_task->id = id;
-
-    id++;
-    id = (id < TASK_ID_MAX) ? id : TASK_ID_MIN;
+    new_task->id = task_id;
 
     return new_task;
 }
@@ -74,9 +71,12 @@ void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
     free(queue);
 }
 
-task_id_t tasks_queue_add(struct tasks_queue *queue, task_cb_t cb, void *ctx)
+unsigned int tasks_queue_add(struct tasks_queue *queue,
+                             task_cb_t cb,
+                             void *ctx,
+                             unsigned int task_id)
 {
-    struct task *new_task = task_new(cb, ctx);
+    struct task *new_task = task_new(cb, ctx, task_id);
     if (!new_task)
         return INVALID_TASK_ID;
 
@@ -85,7 +85,8 @@ task_id_t tasks_queue_add(struct tasks_queue *queue, task_cb_t cb, void *ctx)
     return new_task->id;
 }
 
-static struct task *task_find(struct tasks_queue *queue, task_id_t id)
+static struct task *task_find(struct tasks_queue *queue,
+                              unsigned int id)
 {
     struct list_head *item = NULL, *itr;
 
@@ -100,7 +101,7 @@ static struct task *task_find(struct tasks_queue *queue, task_id_t id)
     return (struct task *)item;
 }
 
-void tasks_queue_remove(struct tasks_queue *queue, task_id_t id)
+void tasks_queue_remove(struct tasks_queue *queue, unsigned int id)
 {
     struct task *item = task_find(queue, id);
     if (!item)

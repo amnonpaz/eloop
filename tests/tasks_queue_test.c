@@ -36,7 +36,7 @@ static void fill_queue(struct tasks_queue *queue)
 
     for (i = 0; i < arr_len(tasks); i++) {
         tasks[i].ctx = i + 1;
-        tasks_queue_add(queue, tasks[i].cb, &tasks[i].ctx);
+        tasks_queue_add(queue, tasks[i].cb, &tasks[i].ctx, i);
     }
 }
 
@@ -47,12 +47,17 @@ static void execute_queue(struct tasks_queue *queue, int n)
 
 int main()
 {
-    struct tasks_queue *queue = tasks_queue_new("My queue");
+    struct tasks_queue *queue = tasks_queue_new();
     if (!queue)
         return 1;
 
+    tasks_queue_remove(queue, 110);
     fill_queue(queue);
-    execute_queue(queue, -1);
+    tasks_queue_remove(queue, 3);
+    tasks_queue_remove(queue, 6);
+    execute_queue(queue, 4);
+    tasks_queue_remove(queue, 5);
+    tasks_queue_remove(queue, 11);
     tasks_queue_delete(queue, true);
 
     return 0;
