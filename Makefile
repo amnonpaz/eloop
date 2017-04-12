@@ -9,7 +9,7 @@ INCLUDES := -Iinclude/
 
 # Library
 LIBRARY = lib
-LIBRARY_TARGET := libexecloop.a
+LIBRARY_TARGET := libeloop.a
 LIB_SOURCES = $(shell find src/ -name "*.c")
 LIB_OBJS = $(LIB_SOURCES:.c=.o)
 
