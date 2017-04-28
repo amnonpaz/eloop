@@ -128,3 +128,8 @@ unsigned int tasks_queue_execute_next(struct tasks_queue *queue)
 
     return queue->len;
 }
+
+unsigned int tasks_queue_pending_tasks(struct tasks_queue *queue)
+{
+    return queue->len;
+}
