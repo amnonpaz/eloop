@@ -71,20 +71,20 @@ void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
     free(queue);
 }
 
-unsigned int tasks_queue_add(struct tasks_queue *queue,
-                             task_cb_t cb,
-                             void *ctx,
-                             unsigned int task_id)
+int tasks_queue_add(struct tasks_queue *queue,
+                    task_cb_t cb,
+                    void *ctx,
+                    unsigned int task_id)
 {
     struct task *new_task = task_new(cb, ctx, task_id);
     if (!new_task)
-        return INVALID_TASK_ID;
+        return -1;
 
     list_add_last(&queue->head, &new_task->list);
 
     queue->len++;
 
-    return new_task->id;
+    return 0;
 }
 
 static struct task *task_find(struct tasks_queue *queue,
