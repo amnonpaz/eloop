@@ -42,7 +42,7 @@ static void fill_queue(struct tasks_queue *queue)
 
 static void execute_queue(struct tasks_queue *queue, int n)
 {
-    while (!tasks_queue_execute_next(queue) && !(--n));
+    while (tasks_queue_execute_next(queue) > 0);
 }
 
 int main()
