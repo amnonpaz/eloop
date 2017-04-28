@@ -82,6 +82,8 @@ unsigned int tasks_queue_add(struct tasks_queue *queue,
 
     list_add_last(&queue->head, &new_task->list);
 
+    queue->len++;
+
     return new_task->id;
 }
 
