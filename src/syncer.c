@@ -186,6 +186,8 @@ static int syncer_process_request(struct syncer *syncer)
 
 void syncer_run(struct syncer *syncer)
 {
+    syncer->stop = false;
+
     syncer_process_request(syncer);
 
     while (!syncer->stop && tasks_queue_pending_tasks(syncer->tasks)) {
