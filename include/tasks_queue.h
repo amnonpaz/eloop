@@ -1,5 +1,5 @@
-#ifndef __TASKS_QUEQUE_H__
-#define __TASKS_QUEQUE_H__
+#ifndef __TASKS_QUEUE_H__
+#define __TASKS_QUEUE_H__
 
 #include "list.h"
 #include <stdbool.h>
@@ -28,4 +28,4 @@ unsigned int tasks_queue_execute_next(struct tasks_queue *queue);
 
 unsigned int tasks_queue_pending_tasks(struct tasks_queue *queue);
 
-#endif /* __TASKS_QUEQUE_H__ */
+#endif /* __TASKS_QUEUE_H__ */
