@@ -23,65 +23,21 @@ struct syncer {
 
 #define MAX_TASK_ID (1<<16)
 
-struct request {
-    unsigned int type;
-    char payload[0];
-};
-
 struct task {
     task_cb_t cb;
     void *ctx;
     task_id_t id;
 };
 
+struct request {
+    unsigned int type;
+    union {
+        struct task task;
+        task_id_t id;
+    } data;
+};
+
 static char read_buffer[MAX_READ_LEN];
-
-static unsigned int request_calc_payload_size(unsigned int type)
-{
-    unsigned int size = 0;
-
-    switch (type) {
-        case REQUEST_TYPE_ADD_TASK:
-            size += sizeof(struct task);
-            break;
-        case REQUEST_TYPE_CANCEL_TASK:
-            size += sizeof(task_id_t);
-            break;
-        default:
-            break;
-    }
-
-    return size;
-}
-
-static int request_add(struct syncer *syncer,
-                       unsigned int type,
-                       void *data,
-                       unsigned int len)
-{
-    struct request *req;
-    unsigned int payload_size = request_calc_payload_size(type),
-                 req_size = sizeof(*req) + payload_size;
-
-    assert(payload_size == len);
-    /* "data" and "len" must both be valid or
-     * both be invalid
-     */
-    assert((!data || len) && (data || !len));
-
-    req = malloc(req_size);
-    if (!req)
-        return -1;
-
-    req->type = type;
-    if (data)
-        memcpy(&req->payload[0], data, len);
-    write(syncer->comm[COMM_WRITE], req, req_size);
-
-    free(req);
-
-    return 0;
-}
 
 struct syncer *syncer_new()
 {
@@ -122,6 +78,12 @@ void syncer_delete(struct syncer *syncer)
     free(syncer);
 }
 
+static int request_add(struct syncer *syncer,
+                       struct request *req)
+{
+    return write(syncer->comm[COMM_WRITE], req, sizeof(*req));
+}
+
 static void syncer_handle_add_task(struct syncer *syncer,
                                    struct task *task)
 {
@@ -139,10 +101,10 @@ static void syncer_handle_request(struct syncer *syncer,
 {
     switch (req->type) {
         case REQUEST_TYPE_ADD_TASK:
-            syncer_handle_add_task(syncer, (struct task *)&req->payload[0]);
+            syncer_handle_add_task(syncer, &req->data.task);
             break;
         case REQUEST_TYPE_CANCEL_TASK:
-            syncer_handle_cancel_task(syncer, *(unsigned int *)&req->payload[0]);
+            syncer_handle_cancel_task(syncer, req->data.id);
             break;
         default:
             assert(0);
@@ -155,28 +117,17 @@ static int syncer_read(struct syncer *syncer, void *ptr, unsigned int size)
     return (read(syncer->comm[COMM_READ], ptr, size) <= 0) ?  -1 : 0;
 }
 
-static int syncer_read_request_header(struct syncer *syncer,
-                                      struct request *req)
+static int syncer_read_request(struct syncer *syncer,
+                               struct request *req)
 {
     return syncer_read(syncer, req, sizeof(*req));
-}
-
-static int syncer_read_request_body(struct syncer *syncer,
-                                    struct request *req)
-{
-    return syncer_read(syncer,
-                       &req->payload[0],
-                       request_calc_payload_size(req->type));
 }
 
 static int syncer_process_request(struct syncer *syncer)
 {
     struct request *req = (struct request *)read_buffer;
 
-    if (syncer_read_request_header(syncer, req) < 0)
-        return -1;
-
-    if (syncer_read_request_body(syncer, req) < 0)
+    if (syncer_read_request(syncer, req) < 0)
         return -1;
 
     syncer_handle_request(syncer, req);
@@ -206,23 +157,29 @@ int syncer_task_add(struct syncer *syncer,
                     void *ctx,
                     task_id_t id)
 {
-    struct task new_task = {
-        .cb = cb,
-        .ctx = ctx,
-        .id = id,
+    struct request add_req = {
+        .type = REQUEST_TYPE_ADD_TASK,
+        .data = {
+            .task = {
+                .cb = cb,
+                .ctx = ctx,
+                .id = id,
+            },
+        },
     };
 
-    return request_add(syncer,
-                       REQUEST_TYPE_ADD_TASK,
-                       &new_task,
-                       sizeof(new_task));
+    return request_add(syncer, &add_req);
 }
 
 int syncer_task_cancel(struct syncer *syncer,
                        task_id_t task_id)
 {
-    return request_add(syncer,
-                       REQUEST_TYPE_CANCEL_TASK,
-                       &task_id,
-                       sizeof(task_id));
+    struct request cancel_req = {
+        .type = REQUEST_TYPE_CANCEL_TASK,
+        .data = {
+            .id = task_id,
+        },
+    };
+
+    return request_add(syncer, &cancel_req);
 }
