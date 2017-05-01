@@ -91,7 +91,7 @@ static void syncer_handle_add_task(struct syncer *syncer,
 }
 
 static void syncer_handle_cancel_task(struct syncer *syncer,
-                                      unsigned int task_id)
+                                      task_id_t task_id)
 {
     tasks_queue_remove(syncer->tasks, task_id);
 }
