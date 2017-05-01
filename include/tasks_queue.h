@@ -1,14 +1,10 @@
 #ifndef __TASKS_QUEUE_H__
 #define __TASKS_QUEUE_H__
 
+#include "eloop.h"
+
 #include "list.h"
 #include <stdbool.h>
-
-typedef void (*task_cb_t)(void *ctx);
-
-typedef unsigned int task_id_t;
-
-#define INVALID_TASK_ID 0
 
 struct tasks_queue;
 
