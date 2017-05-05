@@ -26,14 +26,14 @@ struct syncer {
 struct task {
     task_cb_t cb;
     void *ctx;
-    task_id_t id;
+    id_t id;
 };
 
 struct request {
     unsigned int type;
     union {
         struct task task;
-        task_id_t id;
+        id_t id;
     } data;
 };
 
@@ -91,7 +91,7 @@ static void syncer_handle_add_task(struct syncer *syncer,
 }
 
 static void syncer_handle_cancel_task(struct syncer *syncer,
-                                      task_id_t task_id)
+                                      id_t task_id)
 {
     tasks_queue_remove(syncer->tasks, task_id);
 }
@@ -155,7 +155,7 @@ void syncer_stop(struct syncer *syncer)
 int syncer_task_add(struct syncer *syncer,
                     task_cb_t cb,
                     void *ctx,
-                    task_id_t id)
+                    id_t id)
 {
     struct request add_req = {
         .type = REQUEST_TYPE_ADD_TASK,
@@ -172,7 +172,7 @@ int syncer_task_add(struct syncer *syncer,
 }
 
 int syncer_task_cancel(struct syncer *syncer,
-                       task_id_t task_id)
+                       id_t task_id)
 {
     struct request cancel_req = {
         .type = REQUEST_TYPE_CANCEL_TASK,

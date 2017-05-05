@@ -7,7 +7,7 @@
 struct task_ctx {
     struct olist_head head;
     struct syncer *syncer;
-    task_id_t id;
+    id_t id;
 };
 
 static int task_ctx_cmp(void *key1, void *key2)
@@ -26,10 +26,10 @@ static int task_ctx_cmp(void *key1, void *key2)
 
 static olist_new(contexts, task_ctx_cmp);
 
-static task_id_t get_next_id()
+static id_t get_next_id()
 {
-    static task_id_t next_id = 1;
-    task_id_t ret;
+    static id_t next_id = 1;
+    id_t ret;
 
     ret = next_id;
     next_id++;
@@ -40,7 +40,7 @@ static task_id_t get_next_id()
 static void task(void *ctx);
 
 static struct task_ctx *create_new_task_ctx(struct syncer *syncer,
-                                            task_id_t id)
+                                            id_t id)
 {
     struct task_ctx *data = malloc(sizeof(*data));
     if (!data)
@@ -57,7 +57,7 @@ static struct task_ctx *create_new_task_ctx(struct syncer *syncer,
 static void add_n_tasks(struct syncer *syncer, unsigned int n)
 {
     struct task_ctx *data;
-    task_id_t id;
+    id_t id;
     unsigned int i;
 
     for (i = 0; i < n; i++) {
