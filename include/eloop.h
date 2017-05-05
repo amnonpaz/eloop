@@ -3,6 +3,7 @@
 
 
 #define INVALID_ID 0
+#define MIN_ID 1
 
 typedef unsigned int id_t;
 typedef void (*task_cb_t)(void *ctx);
