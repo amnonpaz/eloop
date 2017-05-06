@@ -105,6 +105,7 @@ static void syncer_handle_cancel_task(struct syncer *syncer,
                                       id_t task_id)
 {
     tasks_queue_remove(syncer->tasks, task_id);
+    ids_manager_put_id(syncer->ids_manager, task_id);
 }
 
 static void syncer_handle_request(struct syncer *syncer,
@@ -153,7 +154,8 @@ void syncer_run(struct syncer *syncer)
     syncer_process_request(syncer);
 
     while (!syncer->stop && tasks_queue_pending_tasks(syncer->tasks)) {
-        tasks_queue_execute_next(syncer->tasks);
+        id_t id = tasks_queue_execute_next(syncer->tasks);
+        ids_manager_put_id(syncer->ids_manager, id);
         while (!syncer_process_request(syncer));
     }
 }
