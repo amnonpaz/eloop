@@ -10,7 +10,7 @@ struct task {
     struct list_head list;
     task_cb_t cb;
     void *ctx;
-    unsigned int id;
+    id_t id;
 };
 
 #define _execute_task(t) \
@@ -23,7 +23,7 @@ struct tasks_queue {
 
 static struct task *task_new(task_cb_t cb,
                              void *ctx,
-                             unsigned int task_id)
+                             id_t task_id)
 {
     struct task *new_task = malloc(sizeof(*new_task));
     if (!new_task)
@@ -74,7 +74,7 @@ void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
 int tasks_queue_add(struct tasks_queue *queue,
                     task_cb_t cb,
                     void *ctx,
-                    unsigned int task_id)
+                    id_t task_id)
 {
     struct task *new_task = task_new(cb, ctx, task_id);
     if (!new_task)
@@ -87,8 +87,7 @@ int tasks_queue_add(struct tasks_queue *queue,
     return 0;
 }
 
-static struct task *task_find(struct tasks_queue *queue,
-                              unsigned int id)
+static struct task *task_find(struct tasks_queue *queue, id_t id)
 {
     struct list_head *item = NULL, *itr;
 
@@ -103,7 +102,7 @@ static struct task *task_find(struct tasks_queue *queue,
     return (struct task *)item;
 }
 
-void tasks_queue_remove(struct tasks_queue *queue, unsigned int id)
+void tasks_queue_remove(struct tasks_queue *queue, id_t id)
 {
     struct task *item = task_find(queue, id);
     if (!item)
