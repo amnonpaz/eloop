@@ -1,7 +1,7 @@
 #ifndef __SCHEDULER_H__
 #define __SCHEDULER_H__
 
-#include "tasks_queue.h"
+#include "eloop.h"
 
 struct syncer;
 
@@ -13,10 +13,9 @@ void syncer_run(struct syncer *syncer);
 
 void syncer_stop(struct syncer *syncer);
 
-int syncer_task_add(struct syncer *syncer,
-                    task_cb_t cb,
-                    void *ctx,
-                    id_t id);
+id_t syncer_task_add(struct syncer *syncer,
+                     task_cb_t cb,
+                     void *ctx);
 
 int syncer_task_cancel(struct syncer *syncer,
                        id_t task_id);

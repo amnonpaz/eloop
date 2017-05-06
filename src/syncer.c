@@ -1,4 +1,6 @@
 #include <syncer.h>
+#include <tasks_queue.h>
+#include <ids_manager.h>
 
 #define _GNU_SOURCE
 #include <stdlib.h>
@@ -12,7 +14,10 @@
 #define COMM_READ   0
 #define COMM_WRITE  1
 
+#define TASK_ID_MAX (1<<16)
+
 struct syncer {
+    struct ids_manager *ids_manager;
     struct tasks_queue *tasks;
     int comm[2];
     bool stop;
@@ -45,6 +50,10 @@ struct syncer *syncer_new()
     if (!syncer)
         goto err_alloc;
 
+    syncer->ids_manager = ids_manager_new(TASK_ID_MAX);
+    if (!syncer->ids_manager)
+        goto err_ids_mgr;
+
     syncer->tasks = tasks_queue_new();
     if (!syncer->tasks)
         goto err_queue;
@@ -57,6 +66,8 @@ struct syncer *syncer_new()
 err_pipe:
     tasks_queue_delete(syncer->tasks, false);
 err_queue:
+    ids_manager_delete(syncer->ids_manager);
+err_ids_mgr:
     free(syncer);
 err_alloc:
     return NULL;
@@ -152,23 +163,35 @@ void syncer_stop(struct syncer *syncer)
     syncer->stop = true;
 }
 
-int syncer_task_add(struct syncer *syncer,
-                    task_cb_t cb,
-                    void *ctx,
-                    id_t id)
+static void set_add_task_request(struct request *req,
+                                 task_cb_t cb,
+                                 void *ctx,
+                                 id_t id)
 {
-    struct request add_req = {
-        .type = REQUEST_TYPE_ADD_TASK,
-        .data = {
-            .task = {
-                .cb = cb,
-                .ctx = ctx,
-                .id = id,
-            },
-        },
-    };
+    req->type = REQUEST_TYPE_ADD_TASK,
+    req->data.task.cb = cb;
+    req->data.task.ctx = ctx;
+    req->data.task.id = id;
+}
 
-    return request_add(syncer, &add_req);
+id_t syncer_task_add(struct syncer *syncer,
+                     task_cb_t cb,
+                     void *ctx)
+{
+    id_t id;
+    struct request add_req;
+
+    id = ids_manager_get_id(syncer->ids_manager);
+    if (id == INVALID_ID)
+        return INVALID_ID;
+
+    set_add_task_request(&add_req, cb, ctx, id);
+    if (request_add(syncer, &add_req) <= 0) {
+        ids_manager_put_id(syncer->ids_manager, id);
+        id = INVALID_ID;
+    }
+
+    return id;
 }
 
 int syncer_task_cancel(struct syncer *syncer,
