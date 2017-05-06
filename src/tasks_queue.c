@@ -112,9 +112,10 @@ void tasks_queue_remove(struct tasks_queue *queue, id_t id)
     queue->len--;
 }
 
-unsigned int tasks_queue_execute_next(struct tasks_queue *queue)
+id_t tasks_queue_execute_next(struct tasks_queue *queue)
 {
     struct task *current_task;
+    id_t id;
 
     if (!queue->len)
         return 0;
@@ -122,10 +123,11 @@ unsigned int tasks_queue_execute_next(struct tasks_queue *queue)
     current_task = (struct task *)queue->head.next;
     _execute_task(current_task);
 
+    id = current_task->id;
     task_delete(current_task);
     queue->len--;
 
-    return queue->len;
+    return id;
 }
 
 unsigned int tasks_queue_pending_tasks(struct tasks_queue *queue)

@@ -18,7 +18,7 @@ int tasks_queue_add(struct tasks_queue *queue,
 
 void tasks_queue_remove(struct tasks_queue *queue, id_t task_id);
 
-unsigned int tasks_queue_execute_next(struct tasks_queue *queue);
+id_t tasks_queue_execute_next(struct tasks_queue *queue);
 
 unsigned int tasks_queue_pending_tasks(struct tasks_queue *queue);
 
