@@ -1,5 +1,5 @@
-#ifndef __SCHEDULER_H__
-#define __SCHEDULER_H__
+#ifndef __SYNCER_H__
+#define __SYNCER_H__
 
 #include "eloop.h"
 
@@ -20,4 +20,4 @@ id_t syncer_task_add(struct syncer *syncer,
 int syncer_task_cancel(struct syncer *syncer,
                        id_t task_id);
 
-#endif /* __SCHEDULER_H__ */
+#endif /* __SYNCER_H__ */
