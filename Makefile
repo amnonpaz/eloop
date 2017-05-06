@@ -1,11 +1,13 @@
 
 CC = gcc
-RM = rm -f
+RM = rm -rf
 CFLAGS = -g -Wall
 LDFLAGS =
 
 # General
 INCLUDES := -Iinclude/
+BIN_DIR := bin
+TESTS_BIN_DIR := $(BIN_DIR)/tests
 
 # Library
 LIBRARY = lib
@@ -28,13 +30,15 @@ $(LIBRARY): $(LIBRARY_TARGET)
 $(LIBRARY_TARGET): $(LIB_OBJS)
 
 %.a:
+	@mkdir -p $(BIN_DIR)
 	@echo "Linking $@"
-	@$(AR) $(ARFLAGS) -o $@ $^
+	@$(AR) $(ARFLAGS) -o $(BIN_DIR)/$@ $^
 
 $(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS) 
 %: %.c
+	@mkdir -p $(TESTS_BIN_DIR)
 	@echo "compiling $<"
-	@$(CC) $(CFLAGS) $< -o $@ $(LIBRARY_TARGET) $(INCLUDES)
+	@$(CC) $(CFLAGS) $< -o $(BIN_DIR)/$@ $(BIN_DIR)/$(LIBRARY_TARGET) $(INCLUDES)
 
 %.o: %.c
 	@echo "Compiling $<"
@@ -42,4 +46,4 @@ $(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS)
 
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(LIBRARY_TARGET) $(LIB_OBJS) $(TESTS_TARGETS)
+	@$(RM) $(BIN_DIR) $(LIB_OBJS)
