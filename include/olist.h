@@ -44,7 +44,7 @@ void olist_add(struct olist_head *head,
 struct olist_head *olist_find(struct olist_head *head, void *key);
 
 #define olist_del(item) \
-    list_del(&item->head);
+    list_del(&(item)->head);
 
 struct olist_head *olist_del_by_key(struct olist_head *head, void *key);
 #endif /* __OLIST_H__ */
