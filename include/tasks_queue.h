@@ -4,7 +4,6 @@
 #include "eloop.h"
 
 #include "list.h"
-#include <stdbool.h>
 
 struct tasks_queue;
 

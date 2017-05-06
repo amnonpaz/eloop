@@ -1,6 +1,7 @@
 #ifndef __ELOOP_H__
 #define __ELOOP_H__
 
+#include <stdbool.h>
 
 #define INVALID_ID 0
 #define MIN_ID 1
