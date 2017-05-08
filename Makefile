@@ -1,7 +1,7 @@
 
 CC = gcc
 RM = rm -rf
-CFLAGS = -g -Wall
+CFLAGS = -g -Wall -std=gnu99
 LDFLAGS =
 
 # General
