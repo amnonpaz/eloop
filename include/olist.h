@@ -22,6 +22,11 @@ struct olist_head {
         .cmp_cb = cb            \
     }
 
+#define olist_init(olist, cb)               \
+    { (olist)->head.next = &(olist)->head;  \
+      (olist)->head.prev = &(olist)->head;  \
+      (olist)->cmp_cb = cb; }
+
 #define olist_is_empty(olist)   \
     list_is_empty(&(olist)->head)
 
