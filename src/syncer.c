@@ -1,8 +1,6 @@
 #include <syncer.h>
 #include <tasks_queue.h>
-#include <ids_manager.h>
 
-#define _GNU_SOURCE
 #include <stdlib.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -17,7 +15,6 @@
 #define TASK_ID_MAX (1<<16)
 
 struct syncer {
-    struct ids_manager *ids_manager;
     struct tasks_queue *tasks;
     int comm[2];
     bool stop;
@@ -31,14 +28,14 @@ struct syncer {
 struct task {
     task_cb_t cb;
     void *ctx;
-    id_t id;
+    eloop_id_t id;
 };
 
 struct request {
     unsigned int type;
     union {
         struct task task;
-        id_t id;
+        eloop_id_t id;
     } data;
 };
 
@@ -49,10 +46,6 @@ struct syncer *syncer_new()
     struct syncer *syncer = calloc(1, sizeof(*syncer));
     if (!syncer)
         goto err_alloc;
-
-    syncer->ids_manager = ids_manager_new(TASK_ID_MAX);
-    if (!syncer->ids_manager)
-        goto err_ids_mgr;
 
     syncer->tasks = tasks_queue_new();
     if (!syncer->tasks)
@@ -66,8 +59,6 @@ struct syncer *syncer_new()
 err_pipe:
     tasks_queue_delete(syncer->tasks, false);
 err_queue:
-    ids_manager_delete(syncer->ids_manager);
-err_ids_mgr:
     free(syncer);
 err_alloc:
     return NULL;
@@ -102,10 +93,9 @@ static void syncer_handle_add_task(struct syncer *syncer,
 }
 
 static void syncer_handle_cancel_task(struct syncer *syncer,
-                                      id_t task_id)
+                                      eloop_id_t task_id)
 {
     tasks_queue_remove(syncer->tasks, task_id);
-    ids_manager_put_id(syncer->ids_manager, task_id);
 }
 
 static void syncer_handle_request(struct syncer *syncer,
@@ -154,8 +144,7 @@ void syncer_run(struct syncer *syncer)
     syncer_process_request(syncer);
 
     while (!syncer->stop && tasks_queue_pending_tasks(syncer->tasks)) {
-        id_t id = tasks_queue_execute_next(syncer->tasks);
-        ids_manager_put_id(syncer->ids_manager, id);
+        tasks_queue_execute_next(syncer->tasks);
         while (!syncer_process_request(syncer));
     }
 }
@@ -168,7 +157,7 @@ void syncer_stop(struct syncer *syncer)
 static void set_add_task_request(struct request *req,
                                  task_cb_t cb,
                                  void *ctx,
-                                 id_t id)
+                                 eloop_id_t id)
 {
     req->type = REQUEST_TYPE_ADD_TASK,
     req->data.task.cb = cb;
@@ -176,28 +165,23 @@ static void set_add_task_request(struct request *req,
     req->data.task.id = id;
 }
 
-id_t syncer_task_add(struct syncer *syncer,
-                     task_cb_t cb,
-                     void *ctx)
+eloop_id_t syncer_task_add(struct syncer *syncer,
+                           task_cb_t cb,
+                           void *ctx)
 {
-    id_t id;
+    eloop_id_t id;
     struct request add_req;
 
-    id = ids_manager_get_id(syncer->ids_manager);
-    if (id == INVALID_ID)
-        return INVALID_ID;
-
+    id = (eloop_id_t)(ctx);
     set_add_task_request(&add_req, cb, ctx, id);
-    if (request_add(syncer, &add_req) <= 0) {
-        ids_manager_put_id(syncer->ids_manager, id);
+    if (request_add(syncer, &add_req) <= 0)
         id = INVALID_ID;
-    }
 
     return id;
 }
 
 int syncer_task_cancel(struct syncer *syncer,
-                       id_t task_id)
+                       eloop_id_t task_id)
 {
     struct request cancel_req = {
         .type = REQUEST_TYPE_CANCEL_TASK,

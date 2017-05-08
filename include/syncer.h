@@ -13,11 +13,11 @@ void syncer_run(struct syncer *syncer);
 
 void syncer_stop(struct syncer *syncer);
 
-id_t syncer_task_add(struct syncer *syncer,
-                     task_cb_t cb,
-                     void *ctx);
+eloop_id_t syncer_task_add(struct syncer *syncer,
+                           task_cb_t cb,
+                           void *ctx);
 
 int syncer_task_cancel(struct syncer *syncer,
-                       id_t task_id);
+                       eloop_id_t task_id);
 
 #endif /* __SYNCER_H__ */

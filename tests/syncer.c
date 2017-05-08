@@ -7,7 +7,7 @@
 struct task_ctx {
     struct olist_head head;
     struct syncer *syncer;
-    id_t inner_id;
+    eloop_id_t inner_id;
 };
 
 static int task_ctx_cmp(void *key1, void *key2)
@@ -26,10 +26,10 @@ static int task_ctx_cmp(void *key1, void *key2)
 
 static olist_new(contexts, task_ctx_cmp);
 
-static id_t get_next_inner_id()
+static eloop_id_t get_next_inner_id()
 {
-    static id_t next_id = 1;
-    id_t ret;
+    static eloop_id_t next_id = 1;
+    eloop_id_t ret;
 
     ret = next_id;
     next_id++;
@@ -40,7 +40,7 @@ static id_t get_next_inner_id()
 static void task(void *ctx);
 
 static struct task_ctx *create_new_task_ctx(struct syncer *syncer,
-                                            id_t inner_id)
+                                            eloop_id_t inner_id)
 {
     struct task_ctx *data = malloc(sizeof(*data));
     if (!data)
@@ -63,7 +63,7 @@ static void delete_task(struct task_ctx *task)
 static void add_n_tasks(struct syncer *syncer, unsigned int n)
 {
     struct task_ctx *data;
-    id_t id;
+    eloop_id_t id;
     unsigned int i;
 
     for (i = 0; i < n; i++) {
@@ -76,7 +76,8 @@ static void add_n_tasks(struct syncer *syncer, unsigned int n)
             delete_task(data);
             break;
         }
-        printf("Added task #%u (id %u)\n", data->inner_id, id);
+        printf("Added task #%"PRIid" (id %"PRIid")\n",
+               data->inner_id, id);
     }
 }
 
@@ -84,7 +85,7 @@ static void task(void *ctx)
 {
     struct task_ctx *data = ctx;
 
-    printf("Executing task #%u\n", data->inner_id);
+    printf("Executing task #%"PRIid"\n", data->inner_id);
 
     switch (data->inner_id) {
         case 1:
@@ -111,7 +112,7 @@ static void delete_unused_contexts()
 
     olist_for_each_safe(&contexts, itr, item) {
         data = (struct task_ctx *)item;
-        printf("Task #%u has not been executed\n", data->inner_id);
+        printf("Task #%"PRIid" has not been executed\n", data->inner_id);
         delete_task(data);
     }
 }

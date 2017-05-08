@@ -10,7 +10,7 @@ struct task {
     struct list_head list;
     task_cb_t cb;
     void *ctx;
-    id_t id;
+    eloop_id_t id;
 };
 
 #define _execute_task(t) \
@@ -23,7 +23,7 @@ struct tasks_queue {
 
 static struct task *task_new(task_cb_t cb,
                              void *ctx,
-                             id_t task_id)
+                             eloop_id_t task_id)
 {
     struct task *new_task = malloc(sizeof(*new_task));
     if (!new_task)
@@ -55,7 +55,8 @@ struct tasks_queue *tasks_queue_new()
     return queue;
 }
 
-void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
+void tasks_queue_delete(struct tasks_queue *queue,
+                        bool execute_all)
 {
     struct list_head *itr, *item;
 
@@ -74,7 +75,7 @@ void tasks_queue_delete(struct tasks_queue *queue, bool execute_all)
 int tasks_queue_add(struct tasks_queue *queue,
                     task_cb_t cb,
                     void *ctx,
-                    id_t task_id)
+                    eloop_id_t task_id)
 {
     struct task *new_task = task_new(cb, ctx, task_id);
     if (!new_task)
@@ -87,7 +88,8 @@ int tasks_queue_add(struct tasks_queue *queue,
     return 0;
 }
 
-static struct task *task_find(struct tasks_queue *queue, id_t id)
+static struct task *task_find(struct tasks_queue *queue,
+                              eloop_id_t id)
 {
     struct list_head *item = NULL, *itr;
 
@@ -102,7 +104,7 @@ static struct task *task_find(struct tasks_queue *queue, id_t id)
     return (struct task *)item;
 }
 
-void tasks_queue_remove(struct tasks_queue *queue, id_t id)
+void tasks_queue_remove(struct tasks_queue *queue, eloop_id_t id)
 {
     struct task *item = task_find(queue, id);
     if (!item)
@@ -112,10 +114,10 @@ void tasks_queue_remove(struct tasks_queue *queue, id_t id)
     queue->len--;
 }
 
-id_t tasks_queue_execute_next(struct tasks_queue *queue)
+eloop_id_t tasks_queue_execute_next(struct tasks_queue *queue)
 {
     struct task *current_task;
-    id_t id;
+    eloop_id_t id;
 
     if (!queue->len)
         return 0;
