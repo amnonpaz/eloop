@@ -6,8 +6,8 @@ LDFLAGS =
 
 # General
 INCLUDES := -Iinclude/
-BIN_DIR := bin
-TESTS_BIN_DIR := $(BIN_DIR)/tests
+BUILD_DIR := build
+TESTS_BUILD_DIR := $(BUILD_DIR)/tests
 
 # Library
 LIBRARY = lib
@@ -30,15 +30,15 @@ $(LIBRARY): $(LIBRARY_TARGET)
 $(LIBRARY_TARGET): $(LIB_OBJS)
 
 %.a:
-	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(BUILD_DIR)
 	@echo "Linking $@"
-	@$(AR) $(ARFLAGS) -o $(BIN_DIR)/$@ $^
+	@$(AR) $(ARFLAGS) -o $(BUILD_DIR)/$@ $^
 
 $(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS) 
 %: %.c
-	@mkdir -p $(TESTS_BIN_DIR)
+	@mkdir -p $(TESTS_BUILD_DIR)
 	@echo "compiling $<"
-	@$(CC) $(CFLAGS) $< -o $(BIN_DIR)/$@ $(BIN_DIR)/$(LIBRARY_TARGET) $(INCLUDES)
+	@$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(BUILD_DIR)/$(LIBRARY_TARGET) $(INCLUDES)
 
 %.o: %.c
 	@echo "Compiling $<"
@@ -46,4 +46,4 @@ $(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS)
 
 clean:
 	@echo "Cleaning..."
-	@$(RM) $(BIN_DIR) $(LIB_OBJS)
+	@$(RM) $(BUILD_DIR) $(LIB_OBJS)
