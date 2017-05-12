@@ -114,7 +114,7 @@ static void syncer_handle_request(struct syncer *syncer,
     }
 }
 
-static int syncer_read(struct syncer *syncer, void *ptr, unsigned int size)
+static int syncer_read(struct syncer *syncer, void *ptr, size_t size)
 {
     return (read(syncer->comm[COMM_READ], ptr, size) <= 0) ?  -1 : 0;
 }
