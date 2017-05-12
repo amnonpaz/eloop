@@ -35,7 +35,7 @@ $(LIBRARY_TARGET): $(LIB_OBJS)
 	@echo "Linking $@"
 	@$(LD) $(LDFLAGS) -o $(BUILD_DIR)/$@ $^
 
-$(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS) 
+$(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS)
 %: %.c
 	@mkdir -p $(TESTS_BUILD_DIR)
 	@echo "compiling $<"
