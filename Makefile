@@ -1,8 +1,9 @@
 
 CC = gcc
+LD = ld
 RM = rm -rf
-CFLAGS = -g -Wall -std=gnu99
-LDFLAGS =
+CFLAGS = -g -fPIC -Wall -std=gnu99
+LDFLAGS = -fPIC -shared -lrt
 
 # General
 INCLUDES := -Iinclude/
@@ -11,7 +12,7 @@ TESTS_BUILD_DIR := $(BUILD_DIR)/tests
 
 # Library
 LIBRARY = lib
-LIBRARY_TARGET := libeloop.a
+LIBRARY_TARGET := libeloop.so
 LIB_SOURCES = $(shell find src/ -name "*.c")
 LIB_OBJS = $(LIB_SOURCES:.c=.o)
 
@@ -29,10 +30,10 @@ all: clean $(LIBRARY_TARGET)
 $(LIBRARY): $(LIBRARY_TARGET)
 $(LIBRARY_TARGET): $(LIB_OBJS)
 
-%.a:
+%.so:
 	@mkdir -p $(BUILD_DIR)
 	@echo "Linking $@"
-	@$(AR) $(ARFLAGS) -o $(BUILD_DIR)/$@ $^
+	@$(LD) $(LDFLAGS) -o $(BUILD_DIR)/$@ $^
 
 $(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS) 
 %: %.c
