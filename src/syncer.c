@@ -39,8 +39,6 @@ struct request {
     } data;
 };
 
-static char read_buffer[MAX_READ_LEN];
-
 struct syncer *syncer_new()
 {
     struct syncer *syncer = calloc(1, sizeof(*syncer));
@@ -127,12 +125,12 @@ static int syncer_read_request(struct syncer *syncer,
 
 static int syncer_process_request(struct syncer *syncer)
 {
-    struct request *req = (struct request *)read_buffer;
+    struct request req;
 
-    if (syncer_read_request(syncer, req) < 0)
+    if (syncer_read_request(syncer, &req) < 0)
         return -1;
 
-    syncer_handle_request(syncer, req);
+    syncer_handle_request(syncer, &req);
 
     return 0;
 }
