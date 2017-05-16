@@ -12,7 +12,7 @@ TESTS_BUILD_DIR := $(BUILD_DIR)/tests
 
 # Library
 LIBRARY = lib
-LIBRARY_TARGET := libeloop.so
+LIBRARY_TARGET := $(BUILD_DIR)/libeloop.so
 LIB_SOURCES = $(shell find src/ -name "*.c")
 LIB_OBJS = $(LIB_SOURCES:.c=.o)
 
@@ -22,28 +22,32 @@ TESTS_DIR = tests
 TESTS_SOURCES = $(shell find $(TESTS_DIR)/ -name "*.c")
 TESTS_TARGETS = $(TESTS_SOURCES:.c=)
 
-.PHONY: all clean $(LIBRARY) $(TESTS)
+.PHONY: all clean build_dir tests_build_dir $(LIBRARY) $(TESTS)
 
 # Recepies
 all: clean $(LIBRARY_TARGET)
 
-$(LIBRARY): $(LIBRARY_TARGET)
+$(LIBRARY): build_dir $(LIBRARY_TARGET)
 $(LIBRARY_TARGET): $(LIB_OBJS)
 
 %.so:
-	@mkdir -p $(BUILD_DIR)
 	@echo "Linking $@"
-	@$(LD) $(LDFLAGS) -o $(BUILD_DIR)/$@ $^
+	@$(LD) $(LDFLAGS) -o $@ $^
 
-$(TESTS): $(LIBRARY_TARGET) $(TESTS_TARGETS)
+$(TESTS): $(LIBRARY) tests_build_dir $(TESTS_TARGETS)
 %: %.c
-	@mkdir -p $(TESTS_BUILD_DIR)
 	@echo "compiling $<"
-	@$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(BUILD_DIR)/$(LIBRARY_TARGET) $(INCLUDES)
+	@$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(LIBRARY_TARGET) $(INCLUDES)
 
 %.o: %.c
 	@echo "Compiling $<"
 	@$(CC) $(CFLAGS) -c $< -o $@ $(INCLUDES)
+
+build_dir:
+	@mkdir -p $(BUILD_DIR)
+
+tests_build_dir:
+	@mkdir -p $(TESTS_BUILD_DIR)
 
 clean:
 	@echo "Cleaning..."
