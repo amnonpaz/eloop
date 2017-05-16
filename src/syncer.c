@@ -157,6 +157,8 @@ static void set_add_task_request(struct request *req,
                                  void *ctx,
                                  eloop_id_t id)
 {
+    memset(req, 0, sizeof(*req));
+
     req->type = REQUEST_TYPE_ADD_TASK,
     req->data.task.cb = cb;
     req->data.task.ctx = ctx;
