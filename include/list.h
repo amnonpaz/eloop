@@ -25,6 +25,15 @@ struct list_head {
     for (item = (head)->next, itr = item->next; \
             item != (head); item = itr, itr = itr->next)
 
+#define list_first(head) \
+    ((head)->next)
+
+#define list_is_last(head, item) \
+    ((item)->next == (head))
+
+#define list_is_first(head, item) \
+    ((item)->prev == (head))
+
 void list_add(struct list_head *head, struct list_head *item);
 void list_del(struct list_head *item);
 
