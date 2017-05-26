@@ -13,7 +13,7 @@ struct list_head {
     { (list)->next = list; (list)->prev = list; }
 
 #define list_is_empty(list) \
-    ((list)->next == (list)->prev)
+    ((list)->next == list)
 
 #define list_for_each(head, itr) \
     for (itr = (head)->next; itr != (head); itr = itr->next)
