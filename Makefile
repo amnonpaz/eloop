@@ -25,7 +25,7 @@ TESTS_TARGETS = $(TESTS_SOURCES:.c=)
 .PHONY: all clean build_dir tests_build_dir $(LIBRARY) $(TESTS)
 
 # Recepies
-all: clean $(LIBRARY_TARGET)
+all: clean $(LIBRARY)
 
 $(LIBRARY): build_dir $(LIBRARY_TARGET)
 $(LIBRARY_TARGET): $(LIB_OBJS)
