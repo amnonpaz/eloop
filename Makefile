@@ -7,6 +7,7 @@ LDFLAGS = -fPIC -shared -lrt
 
 # General
 INCLUDES := -Iinclude/
+TEST_INCLUDES := $(INCLUDES) -Isrc/
 BUILD_DIR := build
 TESTS_BUILD_DIR := $(BUILD_DIR)/tests
 
@@ -37,7 +38,7 @@ $(LIBRARY_TARGET): $(LIB_OBJS)
 $(TESTS): $(LIBRARY) tests_build_dir $(TESTS_TARGETS)
 %: %.c
 	@echo "compiling $<"
-	@$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(LIBRARY_TARGET) $(INCLUDES)
+	@$(CC) $(CFLAGS) $< -o $(BUILD_DIR)/$@ $(LIBRARY_TARGET) $(TEST_INCLUDES)
 
 %.o: %.c
 	@echo "Compiling $<"

@@ -1,5 +1,5 @@
-#include <syncer.h>
-#include <tasks_queue.h>
+#include "syncer.h"
+#include "tasks_queue.h"
 
 #include <stdlib.h>
 #include <unistd.h>
