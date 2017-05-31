@@ -25,7 +25,6 @@ struct schd_timer {
 
 struct scheduler {
     struct list_head timers_list;
-
     struct syncer *syncer;
 };
 
@@ -84,7 +83,7 @@ static int schd_timer_init_system_timer(struct schd_timer *schd_timer)
     return timer_create(CLOCK_MONOTONIC, &se, &schd_timer->system_timer);
 }
 
-int schd_timer_init_system_timer_attr(struct schd_timer *schd_timer)
+static int schd_timer_init_system_timer_attr(struct schd_timer *schd_timer)
 {
     if (pthread_attr_init(&schd_timer->system_timer_attr))
         return -1;
@@ -93,7 +92,7 @@ int schd_timer_init_system_timer_attr(struct schd_timer *schd_timer)
                                        PTHREAD_CREATE_DETACHED);
 }
 
-int schd_timer_destroy_system_timer_attr(struct schd_timer *schd_timer)
+static int schd_timer_destroy_system_timer_attr(struct schd_timer *schd_timer)
 {
     return pthread_attr_destroy(&schd_timer->system_timer_attr);
 }
