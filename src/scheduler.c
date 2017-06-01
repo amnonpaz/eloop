@@ -156,10 +156,8 @@ void scheduler_delete(struct scheduler *schd)
 {
     struct list_head *itr, *item;
 
-    list_for_each_safe(&schd->timers_list, itr, item) {
-        struct schd_timer *timer = (struct schd_timer *)item;
-        scheduler_timer_delete((eloop_id_t)timer);
-    }
+    list_for_each_safe(&schd->timers_list, itr, item)
+        scheduler_timer_delete((eloop_id_t)item);
 
     free(schd);
 }
