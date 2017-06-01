@@ -1,4 +1,6 @@
 #include <list.h>
+
+#include <eloop.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,9 +8,6 @@ struct int_node {
     struct list_head list;
     int data;
 };
-
-#define arr_len(arr) \
-    (sizeof(arr)/sizeof((arr)[0]))
 
 struct int_node *create_node(int data)
 {

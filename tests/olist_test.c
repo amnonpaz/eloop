@@ -1,4 +1,6 @@
 #include <olist.h>
+#include <eloop.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 
