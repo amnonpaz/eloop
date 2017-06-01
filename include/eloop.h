@@ -7,8 +7,8 @@
 #include <stdbool.h>
 
 #define INVALID_ID 0
-#define PRIid PRIu64
-typedef uint64_t eloop_id_t;
+#define PRIid PRIuPTR
+typedef uintptr_t eloop_id_t;
 
 typedef void (*task_cb_t)(void *ctx);
 
