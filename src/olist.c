@@ -1,6 +1,5 @@
 #include "olist.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 void olist_add(struct olist_head *head,
                struct olist_head *item, void *key)
