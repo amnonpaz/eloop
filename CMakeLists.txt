@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(eLoop)
 
-option(BUILD_TESTS "BUILD_TESTS" OFF)
+option(BUILD_TESTS "Build test programs" OFF)
 
 set(ELOOP_LIB eloop)
 set(ROOT_DIR ${CMAKE_CURRENT_LIST_DIR})
