@@ -10,6 +10,7 @@ set(TESTS
     "list.c"
     "olist_test.c"
     "scheduler.c"
+    "sockets.c"
     "syncer.c"
     "tasks_queue.c"
 )
