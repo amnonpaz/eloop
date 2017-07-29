@@ -37,6 +37,7 @@ struct connection {
 };
 
 struct test_data {
+    struct syncer *syncer;
     struct test_parameters parameters;
     struct connection connection;
     struct fd_handler *handler;
@@ -282,7 +283,12 @@ static void register_sigterm_handler()
 
 static int test_init(struct test_data *test_data)
 {
-    test_data->handler = fd_handler_new(MAX_EVENTS);
+    test_data->syncer = syncer_new();
+    if (!test_data->syncer)
+        return -1; 
+
+    test_data->handler = fd_handler_new(test_data->syncer,
+                                        MAX_EVENTS);
     if (!test_data->handler) {
         LOGE("Failed creating fd handler");
         return -1;
@@ -304,6 +310,7 @@ static void test_clear(struct test_data *test_data)
 {
     server_clear(test_data);
     fd_handler_delete(test_data->handler);
+    syncer_delete(test_data->syncer);
 }
 
 int main(int argc, char *argv[])
@@ -318,6 +325,7 @@ int main(int argc, char *argv[])
 
     while (!server_stop) {
         fd_handler_handle_events(test_data.handler);
+        syncer_run(test_data.syncer);
     }
 
     test_clear(&test_data);

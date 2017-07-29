@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 struct fd_handler {
+    struct syncer *syncer;
     struct list_head fd_list;
     int poll_fd;
     uint32_t max_events;
@@ -42,13 +43,15 @@ static void fd_data_delete(struct fd_data *fd_data)
     free(fd_data);
 }
 
-struct fd_handler *fd_handler_new(uint32_t max_events)
+struct fd_handler *fd_handler_new(struct syncer *syncer,
+                                  uint32_t max_events)
 {
     struct fd_handler *handler =
         (struct fd_handler *)malloc(sizeof(*handler));
     if (!handler)
         return NULL;
 
+    handler->syncer = syncer;
     handler->max_events = max_events;
     handler->events_buffer = calloc(handler->max_events,
                                     sizeof(struct epoll_event));
@@ -116,6 +119,38 @@ void fd_handler_remove_fd(struct fd_handler *handler,
     fd_data_delete(fd_data);
 }
 
+struct event_sync_ctx {
+    struct fd_data *fd_data;
+    uint32_t event_mask;
+};
+
+static struct event_sync_ctx *event_sync_ctx_new(struct fd_data *fd_data,
+                                                 uint32_t event_mask)
+{
+    struct event_sync_ctx *event_sync_ctx = malloc(sizeof(*event_sync_ctx));
+    if (!event_sync_ctx)
+        return NULL;
+
+    event_sync_ctx->fd_data = fd_data;
+    event_sync_ctx->event_mask = event_mask;
+
+    return event_sync_ctx;
+}
+
+static void event_sync_ctx_delete(struct event_sync_ctx *event_sync_ctx)
+{
+    free(event_sync_ctx); 
+}
+
+static void fd_handler_sync_event(void *ctx)
+{
+    struct event_sync_ctx *event_sync_ctx = ctx;
+    struct fd_data *fd_data = event_sync_ctx->fd_data;
+
+    fd_data->cb(fd_data->ctx, event_sync_ctx->event_mask);
+    event_sync_ctx_delete(event_sync_ctx);
+}
+
 void fd_handler_handle_events(struct fd_handler *handler)
 {
     uint32_t i;
@@ -130,8 +165,8 @@ void fd_handler_handle_events(struct fd_handler *handler)
         struct fd_data* fd_data =
             (struct fd_data* )handler->events_buffer[i].data.ptr;
         uint32_t current_event = handler->events_buffer[i].events;
-
         uint32_t event_mask = 0;
+        struct event_sync_ctx *event_sync_ctx; 
 
         if (current_event & EPOLLERR) {
             event_mask = SOCKET_EVENT_ERROR;
@@ -145,6 +180,10 @@ void fd_handler_handle_events(struct fd_handler *handler)
                 event_mask |= SOCKET_EVENT_WRITE;
         }
 
-        fd_data->cb(fd_data->ctx, event_mask);
+        event_sync_ctx = event_sync_ctx_new(fd_data, event_mask);
+        if (!event_sync_ctx)
+            continue;
+             
+        syncer_task_add(handler->syncer, fd_handler_sync_event, event_sync_ctx);
     }
 }

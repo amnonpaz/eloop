@@ -3,6 +3,8 @@
 
 #include <eloop.h>
 
+#include "syncer.h"
+
 struct fd_handler;
 
 #define SOCKET_EVENT_ERROR 0x01
@@ -10,7 +12,8 @@ struct fd_handler;
 #define SOCKET_EVENT_READ  0x04
 #define SOCKET_EVENT_WRITE 0x08
 
-struct fd_handler *fd_handler_new(uint32_t max_events);
+struct fd_handler *fd_handler_new(struct syncer *syncer,
+                                  uint32_t max_events);
 
 void fd_handler_delete(struct fd_handler *handler);
 
