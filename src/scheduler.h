@@ -22,6 +22,4 @@ int scheduler_timer_start(eloop_id_t timer_id);
 
 int scheduler_timer_stop(eloop_id_t timer_id);
 
-int scheduler_update(struct scheduler *schd);
-
 #endif /* __SCHEDULER_H__ */
