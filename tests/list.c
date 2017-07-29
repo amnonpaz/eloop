@@ -4,6 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define arr_len(arr) \
+    (sizeof(arr)/sizeof((arr)[0]))
+
 struct int_node {
     struct list_head list;
     int data;

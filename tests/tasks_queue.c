@@ -1,6 +1,9 @@
 #include <tasks_queue.h>
 #include <stdio.h>
 
+#define arr_len(arr) \
+    (sizeof(arr)/sizeof((arr)[0]))
+
 static void work_func_1(void *ctx)
 {
     printf("Function #1 with value %d\n", *(int *)ctx);
