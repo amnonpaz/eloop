@@ -1,4 +1,4 @@
-#include <sockets.h>
+#include <fd.h>
 
 #include <argp.h>
 #include <arpa/inet.h>
@@ -39,7 +39,7 @@ struct connection {
 struct test_data {
     struct test_parameters parameters;
     struct connection connection;
-    struct sockets_handler *handler;
+    struct fd_handler *handler;
     eloop_id_t socket_handler_id;
 };
 
@@ -145,8 +145,8 @@ static void server_handle_incomming(void *ctx, uint32_t event_mask)
         LOGE("Error occured");
     } else if (event_mask & SOCKET_EVENT_HUP) {
         LOGI("Client hung up");
-        sockets_handler_remove_socket(test_data->handler,
-                                      client_data->handle_id);
+        fd_handler_remove_fd(test_data->handler,
+                             client_data->handle_id);
         close(client_data->socket);
         free(client_data);
     } else if (event_mask & SOCKET_EVENT_READ) {
@@ -207,11 +207,10 @@ static void server_handle_new_connection(void *ctx, uint32_t event_mask)
         return;
     }
 
-    client_data->handle_id =
-        sockets_handler_add_socket(test_data->handler,
-                                   client_data->socket,
-                                   server_handle_incomming,
-                                   client_data);
+    client_data->handle_id = fd_handler_add_fd(test_data->handler,
+                                               client_data->socket,
+                                               server_handle_incomming,
+                                               client_data);
     if (client_data->handle_id == INVALID_ID) {
         LOGE("Failed adding connection to socket handler");
         close(client_data->socket);
@@ -249,10 +248,10 @@ static int server_init(struct test_data *test_data)
         return -1;
 
     test_data->socket_handler_id =
-        sockets_handler_add_socket(test_data->handler,
-                                   test_data->connection.socket,
-                                   server_handle_new_connection,
-                                   test_data);
+        fd_handler_add_fd(test_data->handler,
+                          test_data->connection.socket,
+                          server_handle_new_connection,
+                          test_data);
     if (test_data->socket_handler_id == INVALID_ID)
         return -1;
 
@@ -261,8 +260,7 @@ static int server_init(struct test_data *test_data)
 
 void server_clear(struct test_data *test_data)
 {
-    sockets_handler_remove_socket(test_data->handler,
-                                  test_data->socket_handler_id);
+    fd_handler_remove_fd(test_data->handler, test_data->socket_handler_id);
     close(test_data->connection.socket);
 }
 
@@ -284,9 +282,9 @@ static void register_sigterm_handler()
 
 static int test_init(struct test_data *test_data)
 {
-    test_data->handler = socket_handler_new(MAX_EVENTS);
+    test_data->handler = fd_handler_new(MAX_EVENTS);
     if (!test_data->handler) {
-        LOGE("Failed creating sockets handler");
+        LOGE("Failed creating fd handler");
         return -1;
     }
 
@@ -305,7 +303,7 @@ static int test_init(struct test_data *test_data)
 static void test_clear(struct test_data *test_data)
 {
     server_clear(test_data);
-    sockets_handler_delete(test_data->handler);
+    fd_handler_delete(test_data->handler);
 }
 
 int main(int argc, char *argv[])
@@ -319,7 +317,7 @@ int main(int argc, char *argv[])
     }
 
     while (!server_stop) {
-        sockets_handler_handle_events(test_data.handler);
+        fd_handler_handle_events(test_data.handler);
     }
 
     test_clear(&test_data);
