@@ -10,8 +10,6 @@ struct sockets_handler;
 #define SOCKET_EVENT_READ  0x04
 #define SOCKET_EVENT_WRITE 0x08
 
-typedef void (*socket_cb_t)(void *ctx, uint32_t event_mask);
-
 struct sockets_handler *socket_handler_new(uint32_t max_events);
 
 void sockets_handler_delete(struct sockets_handler *handler);

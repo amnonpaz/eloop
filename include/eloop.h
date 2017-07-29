@@ -11,6 +11,7 @@
 typedef uintptr_t eloop_id_t;
 
 typedef void (*task_cb_t)(void *ctx);
+typedef void (*socket_cb_t)(void *ctx, uint32_t event_mask);
 
 
 #endif /* __ELOOP_H__ */
