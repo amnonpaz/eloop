@@ -13,6 +13,11 @@ struct fd_handler {
     struct epoll_event* events_buffer;
 };
 
+#define _event_ctx(handler, idx) \
+    (struct fd_data *)(handler)->events_buffer[(idx)].data.ptr
+#define _event_mask(handler, idx) \
+    (handler)->events_buffer[(idx)].events;
+
 struct fd_data {
     struct list_head list;
     int fd;
@@ -151,6 +156,25 @@ static void fd_handler_sync_event(void *ctx)
     event_sync_ctx_delete(event_sync_ctx);
 }
 
+static uint32_t epoll_event_to_fd_event(uint32_t epoll_event)
+{
+    uint32_t event_mask = 0;
+
+    if (epoll_event & EPOLLERR) {
+        event_mask = SOCKET_EVENT_ERROR;
+    } else if ((epoll_event & EPOLLHUP) ||
+            (epoll_event & EPOLLRDHUP)) {
+        event_mask = SOCKET_EVENT_HUP;
+    } else {
+        if (epoll_event & EPOLLIN)
+            event_mask |= SOCKET_EVENT_READ;
+        if (epoll_event & EPOLLOUT)
+            event_mask |= SOCKET_EVENT_WRITE;
+    }
+
+    return event_mask;
+}
+
 void fd_handler_handle_events(struct fd_handler *handler)
 {
     uint32_t i;
@@ -162,25 +186,12 @@ void fd_handler_handle_events(struct fd_handler *handler)
         return;
 
     for (i = 0; i < num_events; i++) {
-        struct fd_data* fd_data =
-            (struct fd_data* )handler->events_buffer[i].data.ptr;
-        uint32_t current_event = handler->events_buffer[i].events;
-        uint32_t event_mask = 0;
-        struct event_sync_ctx *event_sync_ctx; 
+        struct fd_data *fd_data = _event_ctx(handler, i);
+        uint32_t current_event = _event_mask(handler, i);
+        uint32_t event = epoll_event_to_fd_event(current_event);
 
-        if (current_event & EPOLLERR) {
-            event_mask = SOCKET_EVENT_ERROR;
-        } else if ((current_event & EPOLLHUP) ||
-                   (current_event & EPOLLRDHUP)) {
-            event_mask = SOCKET_EVENT_HUP;
-        } else {
-            if (current_event & EPOLLIN)
-                event_mask |= SOCKET_EVENT_READ;
-            if (current_event & EPOLLOUT)
-                event_mask |= SOCKET_EVENT_WRITE;
-        }
-
-        event_sync_ctx = event_sync_ctx_new(fd_data, event_mask);
+        struct event_sync_ctx *event_sync_ctx =
+            event_sync_ctx_new(fd_data, event);
         if (!event_sync_ctx)
             continue;
              
