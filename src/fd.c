@@ -102,7 +102,7 @@ eloop_id_t fd_handler_add_fd(struct fd_handler *handler,
         return INVALID_ID;
 
     event_config.data.ptr = fd_data;
-    event_config.events = EPOLLIN | EPOLLRDHUP | EPOLLET;
+    event_config.events = EPOLLIN | EPOLLOUT | EPOLLRDHUP | EPOLLET;
 
     if (epoll_ctl(handler->poll_fd,
                   EPOLL_CTL_ADD,
