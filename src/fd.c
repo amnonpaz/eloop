@@ -161,15 +161,15 @@ static uint32_t epoll_event_to_fd_event(uint32_t epoll_event)
     uint32_t event_mask = 0;
 
     if (epoll_event & EPOLLERR) {
-        event_mask = FD_EVENT_ERROR;
+        event_mask = ELOOP_FD_EVENT_ERROR;
     } else if ((epoll_event & EPOLLHUP) ||
             (epoll_event & EPOLLRDHUP)) {
-        event_mask = FD_EVENT_HUP;
+        event_mask = ELOOP_FD_EVENT_HUP;
     } else {
         if (epoll_event & EPOLLIN)
-            event_mask |= FD_EVENT_READ;
+            event_mask |= ELOOP_FD_EVENT_READ;
         if (epoll_event & EPOLLOUT)
-            event_mask |= FD_EVENT_WRITE;
+            event_mask |= ELOOP_FD_EVENT_WRITE;
     }
 
     return event_mask;

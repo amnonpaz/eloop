@@ -7,11 +7,6 @@
 
 struct fd_handler;
 
-#define FD_EVENT_ERROR 0x01
-#define FD_EVENT_HUP   0x02
-#define FD_EVENT_READ  0x04
-#define FD_EVENT_WRITE 0x08
-
 struct fd_handler *fd_handler_new(struct syncer *syncer,
                                   uint32_t max_events);
 

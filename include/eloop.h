@@ -14,5 +14,9 @@ typedef void (*task_cb_t)(void *ctx);
 typedef void (*fd_cb_t)(void *ctx, uint32_t event_mask);
 
 
-#endif /* __ELOOP_H__ */
+#define ELOOP_FD_EVENT_ERROR 0x01
+#define ELOOP_FD_EVENT_HUP   0x02
+#define ELOOP_FD_EVENT_READ  0x04
+#define ELOOP_FD_EVENT_WRITE 0x08
 
+#endif /* __ELOOP_H__ */

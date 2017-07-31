@@ -142,18 +142,18 @@ static void server_handle_incomming(void *ctx, uint32_t event_mask)
     struct client_data *client_data = ctx;
     struct test_data *test_data = client_data->test_data;
 
-    if (event_mask & FD_EVENT_ERROR) {
+    if (event_mask & ELOOP_FD_EVENT_ERROR) {
         LOGE("Error occured");
-    } else if (event_mask & FD_EVENT_HUP) {
+    } else if (event_mask & ELOOP_FD_EVENT_HUP) {
         LOGI("Client hung up");
         fd_handler_remove_fd(test_data->handler,
                              client_data->handle_id);
         close(client_data->socket);
         free(client_data);
-    } else if (event_mask & FD_EVENT_READ) {
+    } else if (event_mask & ELOOP_FD_EVENT_READ) {
         LOGI("Data is ready on socket %d", client_data->socket);
         display_incomming_message(client_data->socket);
-    } else if (event_mask & FD_EVENT_WRITE) {
+    } else if (event_mask & ELOOP_FD_EVENT_WRITE) {
         LOGI("Write event on socket");
     }
 }
