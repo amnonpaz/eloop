@@ -325,7 +325,7 @@ int main(int argc, char *argv[])
 
     while (!server_stop) {
         fd_handler_handle_events(test_data.handler);
-        syncer_run(test_data.syncer);
+        syncer_process_queue(test_data.syncer);
     }
 
     test_clear(&test_data);

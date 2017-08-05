@@ -9,7 +9,7 @@ struct syncer *syncer_new(void);
 
 void syncer_delete(struct syncer *syncer);
 
-void syncer_run(struct syncer *syncer);
+void syncer_process_queue(struct syncer *syncer);
 
 void syncer_stop(struct syncer *syncer);
 

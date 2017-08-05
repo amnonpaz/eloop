@@ -135,7 +135,7 @@ static int syncer_process_request(struct syncer *syncer)
     return 0;
 }
 
-void syncer_run(struct syncer *syncer)
+void syncer_process_queue(struct syncer *syncer)
 {
     syncer->stop = false;
 

@@ -85,7 +85,7 @@ void eloop_run()
 {
     while (eloop_ctx.running) {
         fd_handler_handle_events(eloop_ctx.fd_handler);
-        syncer_run(eloop_ctx.syncer);
+        syncer_process_queue(eloop_ctx.syncer);
     }
 }
 

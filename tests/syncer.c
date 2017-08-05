@@ -126,7 +126,7 @@ int main()
     }
 
     add_n_tasks(syncer, 1);
-    syncer_run(syncer);
+    syncer_process_queue(syncer);
 
     syncer_delete(syncer);
 

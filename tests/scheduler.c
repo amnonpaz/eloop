@@ -156,7 +156,7 @@ int main()
     }
 
     while (!test_data->stop)
-        syncer_run(test_data->syncer);
+        syncer_process_queue(test_data->syncer);
 
     test_delete(test_data);
 
