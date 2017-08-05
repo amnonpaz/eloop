@@ -13,6 +13,7 @@ set(TESTS
     "fd.c"
     "syncer.c"
     "tasks_queue.c"
+    "eloop.c"
 )
 
 set(LIBS
