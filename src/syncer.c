@@ -7,12 +7,8 @@
 #include <string.h>
 #include <assert.h>
 
-#define MAX_READ_LEN 4096
-
 #define COMM_READ   0
 #define COMM_WRITE  1
-
-#define TASK_ID_MAX (1<<16)
 
 struct syncer {
     struct tasks_queue *tasks;
@@ -22,8 +18,6 @@ struct syncer {
 
 #define REQUEST_TYPE_ADD_TASK       1
 #define REQUEST_TYPE_CANCEL_TASK    2
-
-#define MAX_TASK_ID (1<<16)
 
 struct task {
     task_cb_t cb;
